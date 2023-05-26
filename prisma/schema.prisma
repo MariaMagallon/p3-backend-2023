@@ -9,3 +9,45 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Genre {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  albums   Album[]
+  songs    Song[]
+  singerId Int
+  singer   Singer  @relation(fields: [singerId], references: [id])
+}
+
+model Album {
+  id          Int      @id @default(autoincrement())
+  title       String   @unique
+  duration    Int
+  releaseDate DateTime @default(now())
+  genreId     Int
+  genre       Genre    @relation(fields: [genreId], references: [id])
+  singerId    Int
+  singer      Singer   @relation(fields: [singerId], references: [id])
+  songs       Song[]
+}
+
+model Singer {
+  id          Int     @id @default(autoincrement())
+  fullName    String  @unique
+  nacionality String
+  songs       Song[]
+  genres      Genre[]
+  albums      Album[]
+}
+
+model Song {
+  id       Int    @id @default(autoincrement())
+  title    String @unique
+  duration Int
+  genreId  Int
+  genre    Genre  @relation(fields: [genreId], references: [id])
+  albumId  Int
+  album    Album  @relation(fields: [albumId], references: [id])
+  singerId Int
+  singer   Singer @relation(fields: [singerId], references: [id])
+}
