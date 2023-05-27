@@ -1,11 +1,8 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { Request, Response } from "express";
 import dotenv from "dotenv";
-
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import singers from "./singers.js"
 
 dotenv.config();
 const app = express();
@@ -15,14 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.get("/genres", async (req: Request, res: Response) => {
-  try {
-    const result = await prisma.genre.findMany();
-    res.status(200).json(result);
-  } catch (e) {
-    res.status(500).send({ type: e.constructor.name, message: e.toString() });
-  }
-});
+app.use("/singers", singers);
 
 const port = process.env.SERVER_PORT;
 
