@@ -15,8 +15,8 @@ model Genre {
   name     String  @unique
   albums   Album[]
   songs    Song[]
-  singerId Int
-  singer   Singer  @relation(fields: [singerId], references: [id])
+  singerId Int?    
+  singer   Singer?  @relation(fields: [singerId], references: [id])
 }
 
 model Album {
