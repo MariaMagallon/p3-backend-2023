@@ -1,76 +1,66 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
+import { errorChecked } from "./utils.js";
 
 const router = Router();
 
 // endpoints for singers routes
 
 //get singer list
-router.get("/", async (req, res, next) => {
-  try {
-    const result = await prisma.singer.findMany();
-    res.status(200).json(result);
-  } catch (e) {
-    next(e);
-  }
-});
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const result = await prisma.singer.findMany({});
+    res.status(200).json({ singers: result, ok: true });
+  })
+);
 
 //get one singer
-router.get("/:id", async (req, res, next) => {
-  try {
+router.get(
+  "/:id",
+  errorChecked(async (req, res) => {
     const { id } = req.params;
-    const getSinger = await prisma.singer.findUniqueOrThrow({
+    const singer = await prisma.singer.findUniqueOrThrow({
       where: { id: Number(id) },
     });
-    res.json(getSinger);
-  } catch (e) {
-    next(e);
-  }
-});
+    res.status(200).json(singer);
+  })
+);
 
 //create a new singer
-router.post("/", async (req, res, next) => {
-  try {
-    const { fullName, nacionality } = await req.body;
-    const newSinger = await prisma.singer.create({
-      data: {
-        fullName,
-        nacionality,
-      },
-    });
-    res.status(200).json(newSinger);
-  } catch (e) {
-    next(e);
-  }
-});
+router.post(
+  "/",
+  errorChecked(async (req, res) => {
+    const newSinger = await prisma.singer.create({ data: req.body });
+    res.status(200).json({ newSinger, ok: true });
+  })
+);
 
 //update singer
-router.put("/:id", async (req, res, next) => {
-  try {
+router.put(
+  "/:id",
+  errorChecked(async (req, res) => {
     const { id } = req.params;
+
     const updatedSinger = await prisma.singer.update({
       where: { id: Number(id) },
       data: req.body,
     });
     res.status(200).json(updatedSinger);
-  } catch (e) {
-    next(e);
-  }
-});
+  })
+);
 
 //delete singer
-router.delete("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const deleteSinger = await prisma.singer.delete({
-      where: {
-        id: Number(id),
-      },
-    });
-    res.json(deleteSinger);
-  } catch (e) {
-    next(e);
-  }
-});
+router.delete(
+    "/:id",
+    errorChecked(async (req, res) => {
+      const { id } = req.params;
+      const deletedSinger = await prisma.singer.delete({
+        where: { id: Number(id) },
+      });
+      res.status(200).json(deletedSinger);
+    })
+  );
+
 
 export default router;

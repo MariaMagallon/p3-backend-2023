@@ -1,80 +1,70 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
+import { errorChecked } from "./utils.js";
+import albumsRouter from "./albums.js";
 
 const router = Router();
 
 // endpoints for genres routes
 
 //get genre list
-router.get("/", async (req, res,next) => {
-  try {
-    const result = await prisma.genre.findMany();
-    res.status(200).json(result);
-  } catch (e) {
-    next(e);
-  }
-});
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const result = await prisma.genre.findMany({});
+    res.status(200).json({ genres: result, ok: true });
+  })
+);
 
-//get one genre
-router.get("/:id", async (req, res,next) => {
-  try {
+//get one genre by ID
+router.get(
+  "/:id",
+  errorChecked(async (req, res) => {
     const { id } = req.params;
-    const getGenre = await prisma.genre.findUniqueOrThrow({
-      where: { id: Number(id) }
+    const genre = await prisma.genre.findUniqueOrThrow({
+      where: { id: Number(id) },
     });
-    res.json(getGenre);
-  } catch (e) {
-    next(e);
-  }
-});
+    res.status(200).json(genre);
+  })
+);
 
 //create a new genre
-router.post("/", async (req, res,next) => {
-  try {
-    const { name, singer } = await req.body;
-    const newUser = await prisma.genre.create({
-        //or I can just send req.body
-      data: {
-        name,
-        singer,
-      },
-    });
-    res.status(200).send(newUser);
-  } catch (e) {
-    next(e)
-  }
-});
+router.post(
+  "/",
+  errorChecked(async (req, res) => {
+    const newGenre = await prisma.genre.create({ data: req.body });
+    res.status(200).json({ newGenre, ok: true });
+  })
+);
 
 //update genre
-router.put("/:id", async (req, res,next) => {
-  try {
+router.put(
+  "/:id",
+  errorChecked(async (req, res) => {
     const { id } = req.params;
-    const updateGenre = await prisma.genre.update({
-      where: {
-        id: Number(id),
-      },
+
+    const updatedGenre = await prisma.genre.update({
+      where: { id: Number(id) },
       data: req.body,
     });
-    res.json(updateGenre);
-  } catch (e) {
-    next(e)
-  }
-});
+    res.status(200).json(updatedGenre);
+  })
+);
 
 //delete genre
-router.delete("/:id", async (req, res,next) => {
-  try {
+router.delete(
+  "/:id",
+  errorChecked(async (req, res) => {
     const { id } = req.params;
-    const deleteGenre = await prisma.genre.delete({
-      where: {
-        id: Number(id),
-      },
+    const deletedGenre = await prisma.genre.delete({
+      where: { id: Number(id) },
     });
-    res.json(deleteGenre);
-  } catch (e) {
-    next(e)
-  }
-});
+    res.status(200).json(deletedGenre);
+  })
+);
+
+router.use("/:genreIdFromParams/albums", albumsRouter);
 
 export default router;
+
 
