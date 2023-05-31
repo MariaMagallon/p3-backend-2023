@@ -1,6 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,12 +14,9 @@ datasource db {
 }
 
 model Genre {
-  id       Int     @id @default(autoincrement())
-  name     String  @unique
-  albums   Album[]
-  songs    Song[]
-  singerId Int?    
-  singer   Singer?  @relation(fields: [singerId], references: [id])
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  albums Album[]
 }
 
 model Album {
@@ -26,28 +26,25 @@ model Album {
   releaseDate DateTime @default(now())
   genreId     Int
   genre       Genre    @relation(fields: [genreId], references: [id])
-  singerId    Int
-  singer      Singer   @relation(fields: [singerId], references: [id])
   songs       Song[]
-}
-
-model Singer {
-  id          Int     @id @default(autoincrement())
-  fullName    String  @unique
-  nacionality String
-  songs       Song[]
-  genres      Genre[]
-  albums      Album[]
+  singers     Singer[]
 }
 
 model Song {
-  id       Int    @id @default(autoincrement())
-  title    String @unique
+  id       Int      @id @default(autoincrement())
+  title    String   @unique
   duration Int
-  genreId  Int
-  genre    Genre  @relation(fields: [genreId], references: [id])
   albumId  Int
-  album    Album  @relation(fields: [albumId], references: [id])
-  singerId Int
-  singer   Singer @relation(fields: [singerId], references: [id])
+  album    Album    @relation(fields: [albumId], references: [id])
+  singers  Singer[]
+}
+
+model Singer {
+  id          Int    @id @default(autoincrement())
+  fullName    String @unique
+  nacionality String
+  songId      Int
+  songs       Song   @relation(fields: [songId], references: [id])
+  albumId     Int
+  albums      Album  @relation(fields: [albumId], references: [id])
 }
