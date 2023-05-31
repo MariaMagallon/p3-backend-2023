@@ -2,8 +2,9 @@ import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked } from "./utils.js";
 import albumsRouter from "./albums.js";
+import songsRouter from "./songs.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // endpoints for genres routes
 
@@ -66,5 +67,3 @@ router.delete(
 router.use("/:genreIdFromParams/albums", albumsRouter);
 
 export default router;
-
-
