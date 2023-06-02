@@ -2,10 +2,18 @@ import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked } from "./utils.js";
 import songsRouter from "./songs.js";
-import singersRouter from "./singers.js";
 const router = Router({ mergeParams: true });
 
 // endpoints for albums routes
+
+//get albums list
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const result = await prisma.album.findMany({});
+    res.status(200).json({ albums: result, ok: true });
+  })
+);
 
 //get albums list of a genre
 router.get(
@@ -15,27 +23,6 @@ router.get(
       where: { genreId: Number(req.params.genreIdFromParams) },
     });
     res.status(200).json(albums);
-  })
-);
-
-//get albums list of a singer
-router.get(
-    "/",
-    errorChecked(async (req, res) => {
-      const albums = await prisma.album.findMany({
-        where: { genreId: Number(req.params.singerIdFromParams) },
-      });
-      res.status(200).json(albums);
-    })
-  );
-
-
-//get albums list
-router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    const result = await prisma.album.findMany({});
-    res.status(200).json({ albums: result, ok: true });
   })
 );
 
@@ -87,6 +74,4 @@ router.delete(
 );
 
 router.use("/:albumIdFromParams/songs", songsRouter);
-router.use("/:albumIdFromParams/singers", singersRouter);
-
 export default router;

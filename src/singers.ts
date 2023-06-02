@@ -6,34 +6,23 @@ const router = Router({ mergeParams: true });;
 
 // endpoints for singers routes
 
-//get singers of a song
-router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    const songs = await prisma.singer.findMany({
-      where: { songId: Number(req.params.songIdFromParams) },
-    });
-    res.status(200).json(songs);
-  })
-);
-
-//get singers of a album
-router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    const songs = await prisma.singer.findMany({
-      where: { albumId: Number(req.params.albumIdFromParams) },
-    });
-    res.status(200).json(songs);
-  })
-);
-
 //get singer list
 router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.singer.findMany({});
     res.status(200).json({ singers: result, ok: true });
+  })
+);
+
+//get singers of a song
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const singers = await prisma.singer.findMany({
+      where: { songId: Number(req.params.songIdFromParams) },
+    });
+    res.status(200).json(singers);
   })
 );
 
@@ -83,5 +72,6 @@ router.delete(
     res.status(200).json(deletedSinger);
   })
 );
+
 
 export default router;

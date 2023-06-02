@@ -27,7 +27,6 @@ model Album {
   genreId     Int
   genre       Genre    @relation(fields: [genreId], references: [id])
   songs       Song[]
-  singers     Singer[]
 }
 
 model Song {
@@ -45,6 +44,4 @@ model Singer {
   nacionality String
   songId      Int
   songs       Song   @relation(fields: [songId], references: [id])
-  albumId     Int
-  albums      Album  @relation(fields: [albumId], references: [id])
 }

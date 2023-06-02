@@ -7,29 +7,6 @@ const router = Router({ mergeParams: true });
 
 // endpoints for songs routes
 
-//get songs list of a genre /genre/1/albums[]/songs
-/* router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    let superSongs = [];
-    const albums = await prisma.album.findMany({
-      where: { genreId: Number(req.params.genreIdFromParams) },
-    });
-    albums.forEach((element) =>
-      router.get(
-        "/",
-        errorChecked(async (req, res) => {
-          const songs = await prisma.song.findMany({
-            where: { albumId: element.id },
-          });
-          superSongs = superSongs.concat(songs);
-        })
-      )
-    );
-    res.status(200).json(superSongs);
-  })
-); */
-
 //get song list
 router.get(
   "/",
@@ -38,6 +15,19 @@ router.get(
     res.status(200).json({ songs: result, ok: true });
   })
 );
+
+//Get Songs List by album Id
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const songs = await prisma.song.findMany({
+      where: { albumId: Number(req.params.albumIdFromParams) },
+    });
+    res.status(200).json(songs);
+  })
+);
+
+
 
 //get one song
 router.get(
@@ -86,16 +76,7 @@ router.delete(
   })
 );
 
-//get songs list of an album
-router.get(
-    "/",
-    errorChecked(async (req, res) => {
-      const songs = await prisma.song.findMany({
-        where: { albumId: Number(req.params.albumIdFromParams) },
-      });
-      res.status(200).json(songs);
-    })
-  );
+
 
 router.use("/:songIdFromParams/singers", singersRouter);
 export default router;

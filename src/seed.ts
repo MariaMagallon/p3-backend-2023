@@ -56,13 +56,11 @@ await prisma.singer.createMany({
         fullName: "Beyonce",
         nacionality: "USA",
         songId: song1.id,
-        albumId: album1.id,
       },
       {
         fullName: "Ed Sheeran",
         nacionality: "UK",
         songId: song2.id,
-        albumId: album2.id,
       },
     ],
 });
