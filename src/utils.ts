@@ -2,8 +2,7 @@ import { ErrorRequestHandler, RequestHandler } from "express";
 
 export const defaultErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({
-    type: err.constructor.name,
-    message: err.toString(),
+    error: "Ha ocurrido un error en el servidor",
   });
 }
 
@@ -16,3 +15,4 @@ export const errorChecked = (handler: RequestHandler): RequestHandler => {
     }
   }
 }
+

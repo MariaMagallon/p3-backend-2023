@@ -24,6 +24,9 @@ router.get(
     const genre = await prisma.genre.findUniqueOrThrow({
       where: { id: Number(id) },
     });
+    if (!genre.id) {
+      return res.status(404).json({ status: "FAILED", error: "Género no encontrado" });
+    }
     res.status(200).json(genre);
   })
 );
@@ -33,7 +36,10 @@ router.post(
   "/",
   errorChecked(async (req, res) => {
     const newGenre = await prisma.genre.create({ data: req.body });
-    res.status(200).json({ newGenre, ok: true });
+    if(!newGenre.name && newGenre.name ===""){
+      return res.status(400).json({ status: "FAILED", error: "Falta o esta vacía la propiedad requerida en el body: 'name' " });
+    }
+    res.status(201).json({ status: "OK", newGenre});
   })
 );
 
@@ -47,7 +53,12 @@ router.put(
       where: { id: Number(id) },
       data: req.body,
     });
-    res.status(200).json(updatedGenre);
+
+    if (!updatedGenre) {
+      return res.status(404).json({ status: "FAILED", error: "Género no encontrado" });
+    }
+
+    res.status(200).json({status: "OK", updatedGenre});
   })
 );
 
@@ -59,7 +70,12 @@ router.delete(
     const deletedGenre = await prisma.genre.delete({
       where: { id: Number(id) },
     });
-    res.status(200).json(deletedGenre);
+
+    if (!deletedGenre) {
+      return res.status(404).json({ error: "Género no encontrado" });
+    }
+
+    res.status(200).json({status: "OK", deletedGenre});
   })
 );
 
