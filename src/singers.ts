@@ -11,7 +11,7 @@ router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.singer.findMany({});
-    res.status(200).json({ singers: result, ok: true });
+    res.status(200).json({ status: "OK", singers: result });
   })
 );
 
@@ -26,7 +26,7 @@ router.get(
   })
 );
 
-//get one singer
+//get one singer by ID
 router.get(
   "/:id",
   errorChecked(async (req, res) => {
@@ -34,7 +34,12 @@ router.get(
     const singer = await prisma.singer.findUniqueOrThrow({
       where: { id: Number(id) },
     });
-    res.status(200).json(singer);
+    if (!singer) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Interprete no encontrado" });
+    }
+    res.status(200).json({status: "OK", singer});
   })
 );
 
@@ -42,8 +47,31 @@ router.get(
 router.post(
   "/",
   errorChecked(async (req, res) => {
-    const newSinger = await prisma.singer.create({ data: req.body });
-    res.status(200).json({ newSinger, ok: true });
+    const { fullName, nacionality, songId } = req.body;
+    const song = await prisma.song.findUnique({
+      where: { id: Number(songId) },
+    });
+    const newSinger = await prisma.singer.create({ 
+      data: {
+        fullName,
+        nacionality,
+        songId: Number(songId),
+      }
+    
+    });
+    if (!song) {
+      return null;
+    }
+    if (!newSinger) {
+      return res
+        .status(400)
+        .json({
+          status: "FAILED",
+          error:
+            "No se ha podido crear el nuevo interprete. Revise los parámetros requeridos",
+        });
+    }
+    res.status(201).json({ status: "OK", newSinger });
   })
 );
 
@@ -52,12 +80,17 @@ router.put(
   "/:id",
   errorChecked(async (req, res) => {
     const { id } = req.params;
-
     const updatedSinger = await prisma.singer.update({
       where: { id: Number(id) },
       data: req.body,
     });
-    res.status(200).json(updatedSinger);
+    if (!updatedSinger) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Interprete no encontrado" });
+    }
+
+    res.status(200).json({ status: "OK", updatedSinger });
   })
 );
 
@@ -69,7 +102,11 @@ router.delete(
     const deletedSinger = await prisma.singer.delete({
       where: { id: Number(id) },
     });
-    res.status(200).json(deletedSinger);
+    if (!deletedSinger) {
+      return res.status(404).json({ error: "Interprete no encontrado" });
+    }
+
+    res.status(200).json({ status: "OK", deletedSinger });
   })
 );
 
