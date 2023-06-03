@@ -12,7 +12,7 @@ router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.genre.findMany({});
-    res.status(200).json({ genres: result, ok: true });
+    res.status(200).json({ status: "OK", genres: result });
   })
 );
 
@@ -24,10 +24,12 @@ router.get(
     const genre = await prisma.genre.findUniqueOrThrow({
       where: { id: Number(id) },
     });
-    if (!genre.id) {
-      return res.status(404).json({ status: "FAILED", error: "Género no encontrado" });
+    if (!genre) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Género no encontrado" });
     }
-    res.status(200).json(genre);
+    res.status(200).json({ status: "OK", genre });
   })
 );
 
@@ -36,10 +38,16 @@ router.post(
   "/",
   errorChecked(async (req, res) => {
     const newGenre = await prisma.genre.create({ data: req.body });
-    if(!newGenre.name && newGenre.name ===""){
-      return res.status(400).json({ status: "FAILED", error: "Falta o esta vacía la propiedad requerida en el body: 'name' " });
+    if (!newGenre.name && newGenre.name === "") {
+      return res
+        .status(400)
+        .json({
+          status: "FAILED",
+          error:
+            "Falta o esta vacía la propiedad requerida en el body: 'name' ",
+        });
     }
-    res.status(201).json({ status: "OK", newGenre});
+    res.status(201).json({ status: "OK", newGenre });
   })
 );
 
@@ -48,17 +56,18 @@ router.put(
   "/:id",
   errorChecked(async (req, res) => {
     const { id } = req.params;
-
+    const { name } = req.body;
     const updatedGenre = await prisma.genre.update({
       where: { id: Number(id) },
-      data: req.body,
+      data: { name },
     });
-
     if (!updatedGenre) {
-      return res.status(404).json({ status: "FAILED", error: "Género no encontrado" });
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Género no encontrado" });
     }
 
-    res.status(200).json({status: "OK", updatedGenre});
+    res.status(200).json({ status: "OK", updatedGenre });
   })
 );
 
@@ -75,7 +84,7 @@ router.delete(
       return res.status(404).json({ error: "Género no encontrado" });
     }
 
-    res.status(200).json({status: "OK", deletedGenre});
+    res.status(200).json({ status: "OK", deletedGenre });
   })
 );
 
