@@ -6,23 +6,31 @@ const router = Router({ mergeParams: true });
 
 // endpoints for albums routes
 
+//get albums list of a genre
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const genre = await prisma.genre.findUnique({
+      where: { id: Number(req.params.genreIdFromParams) }
+    });
+    if(!genre){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Genero no encontrado" });
+    }
+    const albums = await prisma.album.findMany({
+      where: { genreId: Number(req.params.genreIdFromParams) },
+    });
+    res.status(200).json(albums);
+  })
+);
+
 //get albums list
 router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.album.findMany({});
     res.status(200).json({ status: "OK", albums: result });
-  })
-);
-
-//get albums list of a genre
-router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    const albums = await prisma.album.findMany({
-      where: { genreId: Number(req.params.genreIdFromParams) },
-    });
-    res.status(200).json(albums);
   })
 );
 
@@ -47,20 +55,20 @@ router.get(
 router.post(
   "/",
   errorChecked(async (req, res) => {
-    const { title, duration, genreId } = req.body;
     const genre = await prisma.genre.findUnique({
-      where: { id: Number(genreId) },
+      where: { id: Number(req.params.genreIdFromParams) },
     });
+    if(!genre){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Genero no encontrado" });
+    }
     const newAlbum = await prisma.album.create({
       data: {
-        title,
-        duration: Number(duration),
-        genreId: Number(genreId),
+        ...req.body,
+        genreId: Number(req.params.genreIdFromParams),
       },
     });
-    if (!genre) {
-      return null;
-    }
     if (!newAlbum) {
       return res
         .status(400)
