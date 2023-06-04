@@ -34,7 +34,7 @@ model Song {
   title    String   @unique
   duration Int
   albumId  Int
-  album    Album    @relation(fields: [albumId], references: [id])
+  album    Album    @relation(fields: [albumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   singers  Singer[]
 }
 
@@ -43,5 +43,5 @@ model Singer {
   fullName    String @unique
   nacionality String
   songId      Int
-  songs       Song   @relation(fields: [songId], references: [id])
+  songs       Song   @relation(fields: [songId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
