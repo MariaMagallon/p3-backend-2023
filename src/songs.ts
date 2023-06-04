@@ -12,7 +12,7 @@ router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.song.findMany({});
-    res.status(200).json({ songs: result, ok: true });
+    res.status(200).json({ status: "OK", songs: result });
   })
 );
 
@@ -37,7 +37,12 @@ router.get(
     const song = await prisma.song.findUniqueOrThrow({
       where: { id: Number(id) },
     });
-    res.status(200).json(song);
+    if (!song) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Canción no encontrado" });
+    }
+    res.status(200).json({ status: "OK", song });
   })
 );
 
@@ -45,8 +50,30 @@ router.get(
 router.post(
   "/",
   errorChecked(async (req, res) => {
-    const newSong = await prisma.song.create({ data: req.body });
-    res.status(200).json({ newSong, ok: true });
+    const { title, duration, albumId } = req.body;
+    const song = await prisma.album.findUnique({
+      where: { id: Number(albumId) },
+    });
+    const newSong = await prisma.song.create({ 
+      data: {
+        title,
+        duration: Number(duration),
+        albumId: Number(albumId),
+      }
+    });
+    if (!song) {
+      return null;
+    }
+    if (!newSong) {
+      return res
+        .status(400)
+        .json({
+          status: "FAILED",
+          error:
+            "No se ha podido crear la nueva canción. Revise los parámetros requeridos",
+        });
+    }
+    res.status(201).json({ status: "OK", newSong });
   })
 );
 
@@ -55,12 +82,17 @@ router.put(
   "/:id",
   errorChecked(async (req, res) => {
     const { id } = req.params;
-
     const updatedSong = await prisma.song.update({
       where: { id: Number(id) },
       data: req.body,
     });
-    res.status(200).json(updatedSong);
+    if (!updatedSong) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Canción no encontrado" });
+    }
+
+    res.status(200).json({ status: "OK", updatedSong });
   })
 );
 
@@ -72,7 +104,11 @@ router.delete(
     const deletedSong = await prisma.song.delete({
       where: { id: Number(id) },
     });
-    res.status(200).json(deletedSong);
+    if (!deletedSong) {
+      return res.status(404).json({ error: "Canción no encontrado" });
+    }
+
+    res.status(200).json({ status: "OK", deletedSong });
   })
 );
 
