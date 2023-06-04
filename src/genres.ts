@@ -27,7 +27,7 @@ router.get(
     if (!genre) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Género no encontrado" });
+        .json({ status: "FAILED", error: "Genre not found" });
     }
     res.status(200).json({ status: "OK", genre });
   })
@@ -44,7 +44,7 @@ router.post(
         .json({
           status: "FAILED",
           error:
-            "Falta o esta vacía la propiedad requerida en el body: 'name' ",
+            "Property: 'name' is missing or empty in requiered body ",
         });
     }
     res.status(201).json({ status: "OK", newGenre });
@@ -64,9 +64,8 @@ router.put(
     if (!updatedGenre) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Género no encontrado" });
+        .json({ status: "FAILED", error: "Genre not found" });
     }
-
     res.status(200).json({ status: "OK", updatedGenre });
   })
 );
@@ -81,7 +80,7 @@ router.delete(
     });
 
     if (!deletedGenre) {
-      return res.status(404).json({ error: "Género no encontrado" });
+      return res.status(404).json({ error: "Genre not found" });
     }
 
     res.status(200).json({ status: "OK", deletedGenre });

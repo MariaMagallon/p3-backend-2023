@@ -6,6 +6,15 @@ const router = Router({ mergeParams: true });
 
 // endpoints for albums routes
 
+//get albums list
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const result = await prisma.album.findMany({});
+    res.status(200).json({ status: "OK", albums: result });
+  })
+);
+
 //get albums list of a genre
 router.get(
   "/",
@@ -16,21 +25,12 @@ router.get(
     if(!genre){
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Genero no encontrado" });
+        .json({ status: "FAILED", error: "Genre not found" });
     }
     const albums = await prisma.album.findMany({
       where: { genreId: Number(req.params.genreIdFromParams) },
     });
     res.status(200).json(albums);
-  })
-);
-
-//get albums list
-router.get(
-  "/",
-  errorChecked(async (req, res) => {
-    const result = await prisma.album.findMany({});
-    res.status(200).json({ status: "OK", albums: result });
   })
 );
 
@@ -45,7 +45,7 @@ router.get(
     if (!album) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Album no encontrado" });
+        .json({ status: "FAILED", error: "Album not found" });
     }
     res.status(200).json({ status: "OK", album });
   })
@@ -61,7 +61,7 @@ router.post(
     if(!genre){
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Genero no encontrado" });
+        .json({ status: "FAILED", error: "Genre not found" });
     }
     const newAlbum = await prisma.album.create({
       data: {
@@ -75,7 +75,7 @@ router.post(
         .json({
           status: "FAILED",
           error:
-            "No se ha podido crear el nuevo album. Revise los parámetros requeridos",
+            "Couldn't create new album. Please check required parameters in body",
         });
     }
     res.status(201).json({ status: "OK", newAlbum });
@@ -94,7 +94,7 @@ router.put(
     if (!updatedAlbum) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Album no encontrado" });
+        .json({ status: "FAILED", error: "Album not found" });
     }
 
     res.status(200).json({ status: "OK", updatedAlbum });
@@ -110,7 +110,7 @@ router.delete(
       where: { id: Number(id) },
     });
     if (!deletedAlbum) {
-      return res.status(404).json({ error: "Album no encontrado" });
+      return res.status(404).json({ error: "Album not found" });
     }
 
     res.status(200).json({ status: "OK", deletedAlbum });

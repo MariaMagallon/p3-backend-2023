@@ -19,6 +19,14 @@ router.get(
 router.get(
   "/",
   errorChecked(async (req, res) => {
+    const song = await prisma.song.findUnique({
+      where: { id: Number(req.params.songIdFromParams) }
+    });
+    if(!song){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Song not found" });
+    }
     const singers = await prisma.singer.findMany({
       where: { songId: Number(req.params.songIdFromParams) },
     });
@@ -51,24 +59,25 @@ router.post(
     const song = await prisma.song.findUnique({
       where: { id: Number(songId) },
     });
+    if (!song) {
+      return res
+      .status(404)
+      .json({ status: "FAILED", error: "Song not found" });
+    }
     const newSinger = await prisma.singer.create({ 
       data: {
         fullName,
         nacionality,
         songId: Number(songId),
       }
-    
     });
-    if (!song) {
-      return null;
-    }
     if (!newSinger) {
       return res
         .status(400)
         .json({
           status: "FAILED",
           error:
-            "No se ha podido crear el nuevo interprete. Revise los parámetros requeridos",
+            "Couldn't create new singer. Please check required parameters in body",
         });
     }
     res.status(201).json({ status: "OK", newSinger });
@@ -87,7 +96,7 @@ router.put(
     if (!updatedSinger) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Interprete no encontrado" });
+        .json({ status: "FAILED", error: "Singer not found" });
     }
 
     res.status(200).json({ status: "OK", updatedSinger });
@@ -103,7 +112,7 @@ router.delete(
       where: { id: Number(id) },
     });
     if (!deletedSinger) {
-      return res.status(404).json({ error: "Interprete no encontrado" });
+      return res.status(404).json({ error: "Singer not found" });
     }
 
     res.status(200).json({ status: "OK", deletedSinger });

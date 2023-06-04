@@ -23,7 +23,7 @@ app.use("/albums", albumsRouter);
 app.use("/songs", songsRouter);
 
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: "Ruta no encontrada." });
+  res.status(404).json({ error: "Ruta no encontrada" });
 });
 
 app.use(defaultErrorHandler);

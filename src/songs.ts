@@ -20,14 +20,20 @@ router.get(
 router.get(
   "/",
   errorChecked(async (req, res) => {
+    const album = await prisma.album.findUnique({
+      where: { id: Number(req.params.albumIdFromParams) }
+    });
+    if(!album){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Album not found" });
+    }
     const songs = await prisma.song.findMany({
       where: { albumId: Number(req.params.albumIdFromParams) },
     });
     res.status(200).json(songs);
   })
 );
-
-
 
 //get one song
 router.get(
@@ -50,27 +56,27 @@ router.get(
 router.post(
   "/",
   errorChecked(async (req, res) => {
-    const { title, duration, albumId } = req.body;
-    const song = await prisma.album.findUnique({
-      where: { id: Number(albumId) },
+    const album = await prisma.album.findUnique({
+      where: { id: Number(req.params.albumIdFromParams) },
     });
+    if(!album){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Album not found" });
+    }
     const newSong = await prisma.song.create({ 
       data: {
-        title,
-        duration: Number(duration),
-        albumId: Number(albumId),
+        ...req.body,
+        albumId: Number(req.params.albumIdFromParams),
       }
     });
-    if (!song) {
-      return null;
-    }
     if (!newSong) {
       return res
         .status(400)
         .json({
           status: "FAILED",
           error:
-            "No se ha podido crear la nueva canción. Revise los parámetros requeridos",
+            "Couldn't create new song. Please check required parameters in body",
         });
     }
     res.status(201).json({ status: "OK", newSong });
@@ -89,7 +95,7 @@ router.put(
     if (!updatedSong) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Canción no encontrado" });
+        .json({ status: "FAILED", error: "Song not found" });
     }
 
     res.status(200).json({ status: "OK", updatedSong });
@@ -105,7 +111,7 @@ router.delete(
       where: { id: Number(id) },
     });
     if (!deletedSong) {
-      return res.status(404).json({ error: "Canción no encontrado" });
+      return res.status(404).json({ error: "Song not found" });
     }
 
     res.status(200).json({ status: "OK", deletedSong });
