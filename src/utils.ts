@@ -112,10 +112,33 @@ export const validateSongParams = (): any => {
       .withMessage("Song title must be a string"),
     check("albumId")
       .isNumeric()
-      .withMessage("album id is required")
+      .withMessage("Album id is required")
       .notEmpty()
-      .withMessage("album id is required"),
+      .withMessage("Album id is required"),
     check("duration").isNumeric().withMessage("Duration must be numeric"),
+    (req, res, next): RequestHandler => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ];
+};
+
+export const validateSingerParams = (): any => {
+  return [
+    check("fullName")
+      .notEmpty()
+      .withMessage("Singer name is required")
+      .isString()
+      .withMessage("Singer name must be a string"),
+    check("songId")
+      .isNumeric()
+      .withMessage("Song id is required")
+      .notEmpty()
+      .withMessage("Song id is required"),
+    check("nacionality").isString().withMessage("Singer's nacionality must be a string"),
     (req, res, next): RequestHandler => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

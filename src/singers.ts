@@ -1,6 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked, validateIdParam } from "./utils.js";
+import { errorChecked, validateIdParam, validateSingerParams } from "./utils.js";
 
 const router = Router({ mergeParams: true });;
 
@@ -17,7 +17,8 @@ router.get(
 
 //get singers of a song
 router.get(
-  "/",
+  "/:id/singers",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const song = await prisma.song.findUnique({
       where: { id: Number(req.params.songIdFromParams) }
@@ -46,7 +47,7 @@ router.get(
     if (!singer) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Interprete no encontrado" });
+        .json({ status: "FAILED", error: "Singer not found" });
     }
     res.status(200).json({status: "OK", singer});
   })
@@ -55,10 +56,10 @@ router.get(
 //create a new singer
 router.post(
   "/",
+  validateSingerParams(),
   errorChecked(async (req, res) => {
-    const { fullName, nacionality, songId } = req.body;
     const song = await prisma.song.findUnique({
-      where: { id: Number(songId) },
+      where: { id: Number(req.params.songIdFromParams) },
     });
     if (!song) {
       return res
@@ -67,9 +68,8 @@ router.post(
     }
     const newSinger = await prisma.singer.create({ 
       data: {
-        fullName,
-        nacionality,
-        songId: Number(songId),
+        ...req.body,
+        songId: Number(req.params.songIdFromParams),
       }
     });
     if (!newSinger) {
