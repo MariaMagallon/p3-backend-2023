@@ -5,7 +5,10 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "seed": "ts-node-esm src/seed.ts",
+    "delete-db": "ts-node-esm src/delete.ts",
+    "reload-db": "npm run delete-db && npm run seed"
   },
   "keywords": [],
   "author": "",
