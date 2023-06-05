@@ -1,7 +1,8 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked } from "./utils.js";
+import { errorChecked, validateIdParam } from "./utils.js";
 import albumsRouter from "./albums.js";
+import { check } from "express-validator";
 
 const router = Router({ mergeParams: true });
 
@@ -19,6 +20,7 @@ router.get(
 //get one genre by ID
 router.get(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const genre = await prisma.genre.findUniqueOrThrow({
@@ -54,6 +56,7 @@ router.post(
 //update genre
 router.put(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
@@ -73,6 +76,7 @@ router.put(
 //delete genre
 router.delete(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const deletedGenre = await prisma.genre.delete({

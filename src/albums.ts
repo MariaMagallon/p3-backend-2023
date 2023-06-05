@@ -1,6 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked } from "./utils.js";
+import { errorChecked, validateIdParam } from "./utils.js";
 import songsRouter from "./songs.js";
 const router = Router({ mergeParams: true });
 
@@ -37,6 +37,7 @@ router.get(
 //get one album by ID
 router.get(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const album = await prisma.album.findUniqueOrThrow({
@@ -85,6 +86,7 @@ router.post(
 //update album
 router.put(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const updatedAlbum = await prisma.album.update({
@@ -104,6 +106,7 @@ router.put(
 //delete album
 router.delete(
   "/:id",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
     const deletedAlbum = await prisma.album.delete({

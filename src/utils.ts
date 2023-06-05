@@ -1,4 +1,5 @@
-import { ErrorRequestHandler, RequestHandler } from "express";
+import { ErrorRequestHandler, NextFunction, RequestHandler } from "express";
+import { check, validationResult } from "express-validator";
 
 export const defaultErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   switch (err.constructor.name) {
@@ -31,3 +32,20 @@ export const errorChecked = (handler: RequestHandler): RequestHandler => {
     }
   }
 }
+
+export const validateIdParam = (): any => {
+  return[
+    check("id")
+      .notEmpty()
+      .exists().withMessage("ID is required")
+      .isNumeric()
+      .withMessage("ID must be numeric"),
+    (req, res, next): RequestHandler=> {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ]
+} 
