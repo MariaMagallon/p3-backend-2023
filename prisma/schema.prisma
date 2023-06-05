@@ -21,7 +21,7 @@ model Genre {
 
 model Album {
   id          Int      @id @default(autoincrement())
-  title       String   @unique
+  title       String   
   duration    Int
   releaseDate DateTime @default(now())
   genreId     Int
@@ -31,7 +31,7 @@ model Album {
 
 model Song {
   id       Int      @id @default(autoincrement())
-  title    String   @unique
+  title    String   
   duration Int
   albumId  Int
   album    Album    @relation(fields: [albumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
