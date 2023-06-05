@@ -19,11 +19,11 @@ export const defaultErrorHandler: ErrorRequestHandler = (
         message:
           "A property in requiered body is missing, empty or not exist. Name or title must be unique",
       });
-    case "PrismaValidationError":
+    case "PrismaClientValidationError":
       return res.status(404).json({
         type: err.constructor.name,
         message:
-          "Check required body params type or structure",
+          "Check required body params type or structure of the query",
       });
     default:
       console.error(err);
@@ -79,3 +79,27 @@ export const validateGenreParams = (): any => {
     },
   ];
 };
+
+export const validateAlbumParams = (): any => {
+  return [
+    check("title")
+      .notEmpty()
+      .withMessage("Album title is required")
+      .isString()
+      .withMessage("Album title must be a string"),
+    check("genreId")
+      .isNumeric()
+      .withMessage("Genre id is required")
+      .notEmpty()
+      .withMessage("Genre id is required"),
+    check("duration").isNumeric().withMessage("Duration must be numeric"),
+    (req, res, next): RequestHandler => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ];
+};
+

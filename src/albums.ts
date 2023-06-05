@@ -1,6 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked, validateIdParam } from "./utils.js";
+import { errorChecked, validateAlbumParams, validateIdParam } from "./utils.js";
 import songsRouter from "./songs.js";
 const router = Router({ mergeParams: true });
 
@@ -17,12 +17,13 @@ router.get(
 
 //get albums list of a genre
 router.get(
-  "/",
+  "/:id/albums",
+  validateIdParam(),
   errorChecked(async (req, res) => {
     const genre = await prisma.genre.findUnique({
-      where: { id: Number(req.params.genreIdFromParams) }
+      where: { id: Number(req.params.genreIdFromParams) },
     });
-    if(!genre){
+    if (!genre) {
       return res
         .status(404)
         .json({ status: "FAILED", error: "Genre not found" });
@@ -55,6 +56,7 @@ router.get(
 //create a new album
 router.post(
   "/",
+  validateAlbumParams(),
   errorChecked(async (req, res) => {
     const genre = await prisma.genre.findUnique({
       where: { id: Number(req.params.genreIdFromParams) },
@@ -64,7 +66,7 @@ router.post(
         .status(404)
         .json({ status: "FAILED", error: "Genre not found" });
     }
-    const newAlbum = await prisma.album.create({
+    const newAlbum = await prisma.album.create({ 
       data: {
         ...req.body,
         genreId: Number(req.params.genreIdFromParams),
@@ -81,6 +83,7 @@ router.post(
     }
     res.status(201).json({ status: "OK", newAlbum });
   })
+  
 );
 
 //update album
@@ -91,7 +94,7 @@ router.put(
     const { id } = req.params;
     const updatedAlbum = await prisma.album.update({
       where: { id: Number(id) },
-      data: req.body
+      data: req.body,
     });
     if (!updatedAlbum) {
       return res
@@ -109,13 +112,17 @@ router.delete(
   validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
+    const albumExists = await prisma.album.findUniqueOrThrow({
+      where: { id: Number(id) },
+    });
+    if (!albumExists) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Album not found" });
+    }
     const deletedAlbum = await prisma.album.delete({
       where: { id: Number(id) },
     });
-    if (!deletedAlbum) {
-      return res.status(404).json({ error: "Album not found" });
-    }
-
     res.status(200).json({ status: "OK", deletedAlbum });
   })
 );
