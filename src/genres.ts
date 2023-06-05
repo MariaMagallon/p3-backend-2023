@@ -1,8 +1,7 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked, validateIdParam } from "./utils.js";
+import { errorChecked, validateGenreParams, validateIdParam } from "./utils.js";
 import albumsRouter from "./albums.js";
-import { check } from "express-validator";
 
 const router = Router({ mergeParams: true });
 
@@ -38,17 +37,17 @@ router.get(
 //create a new genre
 router.post(
   "/",
+  validateGenreParams(),
   errorChecked(async (req, res) => {
-    const newGenre = await prisma.genre.create({ data: req.body });
-    if (!newGenre.name && newGenre.name === "") {
+    const genre = await prisma.genre.findUniqueOrThrow({
+      where: { name: req.body.name },
+    });
+    if (genre) {
       return res
-        .status(400)
-        .json({
-          status: "FAILED",
-          error:
-            "Property: 'name' is missing or empty in requiered body ",
-        });
+        .status(404)
+        .json({ status: "FAILED", error: "Genre name must be unique" });
     }
+    const newGenre = await prisma.genre.create({ data: req.body });
     res.status(201).json({ status: "OK", newGenre });
   })
 );
@@ -57,18 +56,26 @@ router.post(
 router.put(
   "/:id",
   validateIdParam(),
+  validateGenreParams(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
-    const updatedGenre = await prisma.genre.update({
+    const genreExists = await prisma.genre.findUniqueOrThrow({
       where: { id: Number(id) },
-      data: { name },
     });
-    if (!updatedGenre) {
+    if (genreExists.name) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Genre name must be unique" });
+    }
+    if (!genreExists) {
       return res
         .status(404)
         .json({ status: "FAILED", error: "Genre not found" });
     }
+    const updatedGenre = await prisma.genre.update({
+      where: { id: Number(id) },
+      data: req.body,
+    });
     res.status(200).json({ status: "OK", updatedGenre });
   })
 );
@@ -79,13 +86,17 @@ router.delete(
   validateIdParam(),
   errorChecked(async (req, res) => {
     const { id } = req.params;
+    const genreExists = await prisma.genre.findUniqueOrThrow({
+      where: { id: Number(id) },
+    });
+    if (!genreExists) {
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Genre not found" });
+    }
     const deletedGenre = await prisma.genre.delete({
       where: { id: Number(id) },
     });
-
-    if (!deletedGenre) {
-      return res.status(404).json({ error: "Genre not found" });
-    }
 
     res.status(200).json({ status: "OK", deletedGenre });
   })
