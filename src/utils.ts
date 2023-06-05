@@ -103,3 +103,25 @@ export const validateAlbumParams = (): any => {
   ];
 };
 
+export const validateSongParams = (): any => {
+  return [
+    check("title")
+      .notEmpty()
+      .withMessage("Song title is required")
+      .isString()
+      .withMessage("Song title must be a string"),
+    check("albumId")
+      .isNumeric()
+      .withMessage("album id is required")
+      .notEmpty()
+      .withMessage("album id is required"),
+    check("duration").isNumeric().withMessage("Duration must be numeric"),
+    (req, res, next): RequestHandler => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ];
+};

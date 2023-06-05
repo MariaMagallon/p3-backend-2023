@@ -1,6 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
-import { errorChecked, validateIdParam } from "./utils.js";
+import { errorChecked, validateIdParam, validateSongParams } from "./utils.js";
 import singersRouter from "./singers.js";
 
 const router = Router({ mergeParams: true });
@@ -18,7 +18,7 @@ router.get(
 
 //Get Songs List by album Id
 router.get(
-  "/",
+  "/:id/songs",
   validateIdParam(),
   errorChecked(async (req, res) => {
     const album = await prisma.album.findUnique({
@@ -48,7 +48,7 @@ router.get(
     if (!song) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Canción no encontrado" });
+        .json({ status: "FAILED", error: "Song not found" });
     }
     res.status(200).json({ status: "OK", song });
   })
@@ -57,7 +57,7 @@ router.get(
 //create a new song
 router.post(
   "/",
-  validateIdParam(),
+  validateSongParams(),
   errorChecked(async (req, res) => {
     const album = await prisma.album.findUnique({
       where: { id: Number(req.params.albumIdFromParams) },
@@ -115,10 +115,11 @@ router.delete(
     const deletedSong = await prisma.song.delete({
       where: { id: Number(id) },
     });
-    if (!deletedSong) {
-      return res.status(404).json({ error: "Song not found" });
+    if(!deletedSong){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Song not found" })
     }
-
     res.status(200).json({ status: "OK", deletedSong });
   })
 );
