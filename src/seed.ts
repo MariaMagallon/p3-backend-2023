@@ -20,7 +20,6 @@ const genre3 = await prisma.genre.create({
 });
 console.log(`Created genre3 ${genre3.name} (${genre3.id})`);
 
-
 const album1 = await prisma.album.create({
   data: {
     title: "Dangerously In Love",
@@ -87,35 +86,31 @@ await prisma.song.createMany({
       title: "Crazy In Love",
       duration: 4,
       albumId: album1.id,
-      singerId: singer1.id
+      singerId: singer1.id,
     },
     {
       title: "Be with you",
       duration: 4,
       albumId: album1.id,
-      singerId: singer1.id
+      singerId: singer1.id,
     },
     {
       title: "Shape of You",
       duration: 3,
       albumId: album2.id,
-      singerId: singer2.id
+      singerId: singer2.id,
     },
     {
       title: "Valerie",
       duration: 3,
       albumId: album3.id,
-      singerId: singer3.id
+      singerId: singer3.id,
     },
     {
       title: "Back to black",
       duration: 3,
       albumId: album3.id,
-      singerId: singer3.id
-    }
+      singerId: singer3.id,
+    },
   ],
 });
-
-
-
-

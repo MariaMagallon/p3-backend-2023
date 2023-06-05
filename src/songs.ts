@@ -2,7 +2,6 @@ import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateIdParam, validateSongParams } from "./utils.js";
 
-
 const router = Router({ mergeParams: true });
 
 // endpoints for songs routes
@@ -42,7 +41,7 @@ router.post(
     const album = await prisma.album.findUnique({
       where: { id: Number(req.body.albumId) },
     });
-    if(!album){
+    if (!album) {
       return res
         .status(404)
         .json({ status: "FAILED", error: "Album not found" });
@@ -50,26 +49,24 @@ router.post(
     const singer = await prisma.singer.findUnique({
       where: { id: Number(req.body.singerId) },
     });
-    if(!singer){
+    if (!singer) {
       return res
         .status(404)
         .json({ status: "FAILED", error: "Singer not found" });
     }
-    const newSong = await prisma.song.create({ 
+    const newSong = await prisma.song.create({
       data: {
         ...req.body,
         albumId: Number(req.body.albumId),
-        singerId: Number(req.body.singerId)
-      }
+        singerId: Number(req.body.singerId),
+      },
     });
     if (!newSong) {
-      return res
-        .status(400)
-        .json({
-          status: "FAILED",
-          error:
-            "Couldn't create new song. Please check required parameters in body",
-        });
+      return res.status(400).json({
+        status: "FAILED",
+        error:
+          "Couldn't create new song. Please check required parameters in body",
+      });
     }
     res.status(201).json({ status: "OK", newSong });
   })
@@ -104,10 +101,10 @@ router.delete(
     const deletedSong = await prisma.song.delete({
       where: { id: Number(id) },
     });
-    if(!deletedSong){
+    if (!deletedSong) {
       return res
         .status(404)
-        .json({ status: "FAILED", error: "Song not found" })
+        .json({ status: "FAILED", error: "Song not found" });
     }
     res.status(200).json({ status: "OK", deletedSong });
   })

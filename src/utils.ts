@@ -22,8 +22,7 @@ export const defaultErrorHandler: ErrorRequestHandler = (
     case "PrismaClientValidationError":
       return res.status(404).json({
         type: err.constructor.name,
-        message:
-          "Check required body params type or structure of the query",
+        message: "Check required body params type or structure of the query",
       });
     default:
       console.error(err);
@@ -138,7 +137,9 @@ export const validateSingerParams = (): any => {
       .withMessage("Singer name is required")
       .isString()
       .withMessage("Singer name must be a string"),
-    check("nacionality").isString().withMessage("Singer's nacionality must be a string"),
+    check("nacionality")
+      .isString()
+      .withMessage("Singer's nacionality must be a string"),
     (req, res, next): RequestHandler => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

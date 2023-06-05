@@ -1,7 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateGenreParams, validateIdParam } from "./utils.js";
-import albumsRouter from "./albums.js";
 
 const router = Router({ mergeParams: true });
 
@@ -102,6 +101,7 @@ router.delete(
   })
 );
 
+//get album list by genre ID
 router.get(
   "/:id/albums",
   validateIdParam(),

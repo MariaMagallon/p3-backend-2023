@@ -1,7 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateIdParam, validateSingerParams } from "./utils.js";
-import songsRouter from "./songs.js";
 const router = Router({ mergeParams: true });;
 
 // endpoints for singers routes
