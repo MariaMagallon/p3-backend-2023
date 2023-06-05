@@ -1,7 +1,7 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateIdParam, validateSongParams } from "./utils.js";
-import singersRouter from "./singers.js";
+
 
 const router = Router({ mergeParams: true });
 
@@ -13,26 +13,6 @@ router.get(
   errorChecked(async (req, res) => {
     const result = await prisma.song.findMany({});
     res.status(200).json({ status: "OK", songs: result });
-  })
-);
-
-//Get Songs List by album Id
-router.get(
-  "/:id/songs",
-  validateIdParam(),
-  errorChecked(async (req, res) => {
-    const album = await prisma.album.findUnique({
-      where: { id: Number(req.params.albumIdFromParams) }
-    });
-    if(!album){
-      return res
-        .status(404)
-        .json({ status: "FAILED", error: "Album not found" });
-    }
-    const songs = await prisma.song.findMany({
-      where: { albumId: Number(req.params.albumIdFromParams) },
-    });
-    res.status(200).json(songs);
   })
 );
 
@@ -60,17 +40,26 @@ router.post(
   validateSongParams(),
   errorChecked(async (req, res) => {
     const album = await prisma.album.findUnique({
-      where: { id: Number(req.params.albumIdFromParams) },
+      where: { id: Number(req.body.albumId) },
     });
     if(!album){
       return res
         .status(404)
         .json({ status: "FAILED", error: "Album not found" });
     }
+    const singer = await prisma.singer.findUnique({
+      where: { id: Number(req.body.singerId) },
+    });
+    if(!singer){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Singer not found" });
+    }
     const newSong = await prisma.song.create({ 
       data: {
         ...req.body,
-        albumId: Number(req.params.albumIdFromParams),
+        albumId: Number(req.body.albumId),
+        singerId: Number(req.body.singerId)
       }
     });
     if (!newSong) {
@@ -124,7 +113,4 @@ router.delete(
   })
 );
 
-
-
-router.use("/:songIdFromParams/singers", singersRouter);
 export default router;

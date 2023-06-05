@@ -1,7 +1,6 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateAlbumParams, validateIdParam } from "./utils.js";
-import songsRouter from "./songs.js";
 const router = Router({ mergeParams: true });
 
 // endpoints for albums routes
@@ -12,26 +11,6 @@ router.get(
   errorChecked(async (req, res) => {
     const result = await prisma.album.findMany({});
     res.status(200).json({ status: "OK", albums: result });
-  })
-);
-
-//get albums list of a genre
-router.get(
-  "/:id/albums",
-  validateIdParam(),
-  errorChecked(async (req, res) => {
-    const genre = await prisma.genre.findUnique({
-      where: { id: Number(req.params.genreIdFromParams) },
-    });
-    if (!genre) {
-      return res
-        .status(404)
-        .json({ status: "FAILED", error: "Genre not found" });
-    }
-    const albums = await prisma.album.findMany({
-      where: { genreId: Number(req.params.genreIdFromParams) },
-    });
-    res.status(200).json(albums);
   })
 );
 
@@ -127,5 +106,25 @@ router.delete(
   })
 );
 
-router.use("/:albumIdFromParams/songs", songsRouter);
+//Get Songs List by album Id
+router.get(
+  "/:id/songs",
+  validateIdParam(),
+  errorChecked(async (req, res) => {
+    const album = await prisma.album.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { songs: true }
+    });
+    if(!album){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Album not found" });
+    }
+    const songs = await prisma.song.findMany({
+      where: { albumId: Number(req.params.id) },
+    });
+    res.status(200).json(songs);
+  })
+);
+
 export default router;
