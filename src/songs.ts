@@ -6,7 +6,7 @@ const router = Router({ mergeParams: true });
 
 // endpoints for songs routes
 
-//genera conflicte amb songs oaf an album i songs of a singer. Suposo que es perque tenen el mateix path (volia fer ús del router)
+//genera conflicte amb songs of an album i songs of a singer. Suposo que es perque tenen el mateix path (volia fer ús del router)
 
 //get song list
 /* router.get(
