@@ -6,14 +6,16 @@ const router = Router({ mergeParams: true });
 
 // endpoints for songs routes
 
+//genera conflicte amb songs oaf an album i songs of a singer. Suposo que es perque tenen el mateix path (volia fer ús del router)
+
 //get song list
-router.get(
+/* router.get(
   "/",
   errorChecked(async (req, res) => {
     const result = await prisma.song.findMany({});
     res.status(200).json({ status: "OK", songs: result });
   })
-);
+); */
 
 //get one song
 router.get(
@@ -33,7 +35,9 @@ router.get(
   })
 );
 
-//create a new song
+//create a new song 
+// path => /songs (no se si hauria de dependre de album i singer). Volia fer que depengues de les entitats pares com el cas album-genre on si puc
+//agafar el parametre id req.params i no com ho he hagut de fer en aquest cas de req.body
 router.post(
   "/",
   validateSongParams(),
@@ -110,4 +114,41 @@ router.delete(
   })
 );
 
+//Get Songs List by album Id
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const album = await prisma.album.findUnique({
+      where: { id: Number(req.params.albumIdFromParams) },
+    });
+    if(!album){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Album not found" });
+    }
+    const songs = await prisma.song.findMany({
+      where: { albumId: Number(req.params.albumIdFromParams) },
+    });
+    res.status(200).json(songs);
+  })
+);
+
+//Get Songs List by singer Id
+router.get(
+  "/",
+  errorChecked(async (req, res) => {
+    const singer = await prisma.singer.findUnique({
+      where: { id: Number(req.params.singerIdFromParams) },
+    });
+    if(!singer){
+      return res
+        .status(404)
+        .json({ status: "FAILED", error: "Singer not found" });
+    }
+    const songs = await prisma.song.findMany({
+      where: { singerId: Number(req.params.singerIdFromParams) },
+    });
+    res.status(200).json(songs);
+  })
+);
 export default router;

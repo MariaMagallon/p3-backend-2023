@@ -1,6 +1,7 @@
 import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateGenreParams, validateIdParam } from "./utils.js";
+import albumsRouter from "./albums.js";
 
 const router = Router({ mergeParams: true });
 
@@ -101,24 +102,6 @@ router.delete(
   })
 );
 
-//get album list by genre ID
-router.get(
-  "/:id/albums",
-  validateIdParam(),
-  errorChecked(async (req, res) => {
-    const genre = await prisma.genre.findUnique({
-      where: { id: Number(req.params.id) },
-    });
-    if (!genre) {
-      return res
-        .status(404)
-        .json({ status: "FAILED", error: "Genre not found" });
-    }
-    const albums = await prisma.album.findMany({
-      where: { genreId: Number(req.params.id) },
-    });
-    res.status(200).json(albums);
-  })
-);
+router.use("/:genreIdFromParams/albums", albumsRouter);
 
 export default router;

@@ -2,6 +2,7 @@ import { Router } from "express";
 import prisma from "./prisma-client.js";
 import { errorChecked, validateIdParam, validateSingerParams } from "./utils.js";
 const router = Router({ mergeParams: true });;
+import songsRouter from "./songs.js";
 
 // endpoints for singers routes
 
@@ -38,10 +39,8 @@ router.post(
   validateSingerParams(),
   errorChecked(async (req, res) => {
     const newSinger = await prisma.singer.create({ 
-      data: {
-        ...req.body,
-        songId: Number(req.params.songIdFromParams),
-      }
+      data: 
+        req.body    
     });
     if (!newSinger) {
       return res
@@ -92,25 +91,5 @@ router.delete(
     res.status(200).json({ status: "OK", deletedSinger });
   })
 );
-
-//Get Songs List by singer Id
-router.get(
-  "/:id/songs",
-  validateIdParam(),
-  errorChecked(async (req, res) => {
-    const singer = await prisma.singer.findUnique({
-      where: { id: Number(req.params.id) },
-      include: { songs: true }
-    });
-    if(!singer){
-      return res
-        .status(404)
-        .json({ status: "FAILED", error: "singer not found" });
-    }
-    const songs = await prisma.song.findMany({
-      where: { singerId: Number(req.params.id) },
-    });
-    res.status(200).json(songs);
-  })
-);
+router.use("/:singerIdFromParams/songs", songsRouter);
 export default router;
